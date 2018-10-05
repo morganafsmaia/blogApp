@@ -46,7 +46,7 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 //process.env.POSTGRES_USER
 //BLOGAPP
 const index = express()
-const sequelize = new Sequelize(POSTGRES_DATABASE, POSTGRES_USER, null, {
+const sequelize = new Sequelize(process.env.POSTGRES_DATABASE, process.env.POSTGRES_USER, null, {
     host: 'localhost',
     dialect: 'postgres',
     storage: './session.postgres'
