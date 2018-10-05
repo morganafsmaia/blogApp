@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>My posts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="../../css/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Charmonman" rel="stylesheet">
+</head>
+<body id="userposts">
+    
+    <nav>
+        <ul>
+            <li><a href='/'>Home</a></li>
+            <li><a href='/post/new'>Add Posts</a></li>
+            <li><a href='/post/my'>My Posts</a></li>
+            <li><a href='/post'>All Posts</a></li>
+            <li><a href='/register'>Register</a></li>
+            <li><a href='/login'>Log In</a></li>
+            <li><a href='/logout'>Log Out</a></li>
+        </ul>
+    </nav>
+
+    <h1><%= user.username %>'s posts</h1>
+
+    <% posts.forEach(function(Upost){ %>
+        <div id="Uposts"></div>
+        <h4 class='UpostTitle'><a href="/post/<%=Upost.post_id%>"><%= Upost.title %></a></h4>
+        <p class='UpostBody'><%= Upost.body %></p>
+    </div>
+    <% }) %>
+
+
+<footer>
+    <p>Made by Morfsm!</p>
+</footer>
+</body>
+</html>

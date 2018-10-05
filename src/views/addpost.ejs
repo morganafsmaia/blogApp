@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Add Posts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="../../css/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+</head>
+
+<body id="addpost">
+
+    <nav>
+        <ul>
+            <li><a href='/'>Home</a></li>
+            <li><a href='/post/new'>Add Posts</a></li>
+            <li><a href='/post/my'>My Posts</a></li>
+            <li><a href='/post'>All Posts</a></li>
+            <li><a href='/register'>Register</a></li>
+            <li><a href='/login'>Log In</a></li>
+            <li><a href='/logout'>Log Out</a></li>
+        </ul>
+    </nav>
+    <h1>Add a new kickass post!</h1>
+
+    <form id="addpost" action="/post/new" method="POST">
+        <input id='Title' type="text" name="title" placeholder="Make me a great title that is at least 2 characters long."><br><br>
+        <textarea id='Body' name="body" placeholder="Go for it!"></textarea><br><br>
+        <input id="submit" type="submit" value="Submit">
+    </form>
+
+    <footer>
+        <p>Made by Morfsm!</p>
+    </footer>
+</body>
+
+</html>

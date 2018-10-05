@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>This post!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="../../css/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Charmonman" rel="stylesheet">
+</head>
+
+<body id="specificpost">
+
+    <nav>
+        <ul>
+            <li><a href='/'>Home</a></li>
+            <li><a href='/post/new'>Add Posts</a></li>
+            <li><a href='/post/my'>My Posts</a></li>
+            <li><a href='/post'>All Posts</a></li>
+            <li><a href='/register'>Register</a></li>
+            <li><a href='/login'>Log In</a></li>
+            <li><a href='/logout'>Log Out</a></li>
+        </ul>
+    </nav>
+
+    <h1>
+        <%= posts.title %>
+    </h1>
+
+    <h5>By
+        <%= posts.user.username %>
+    </h5>
+
+    <p id="specbody">
+        <%= posts.body %>
+    </p>
+
+
+    <h3 id="commentform">What do you think about this post?</h3>
+
+    <form action='/post/<%= posts.post_id %>' method="POST">
+        <textarea type="textarea" name="comment" placeholder="I think..."></textarea><br><br>
+        <input id="submit" type="submit" value="Submit">
+    </form>
+    <h3 id='commentbox'>Here are some thoughts about this post:</h3>
+
+    <% comments.forEach(function(comm){ %>
+    <div class="comms">
+        <h6>
+            <%= comm.user.username %> says: <%= comm.comment %>
+        </h6>
+    </div>
+    <% }); %>
+
+
+    <footer>
+        <p>Made by Morfsm!</p>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="./css/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+</head>
+
+<body id="register">
+   
+    <nav>
+        <ul>
+            <li><a href='/'>Home</a></li>
+            <li><a href='/post/new'>Add Posts</a></li>
+            <li><a href='/post/my'>My Posts</a></li>
+            <li><a href='/post'>All Posts</a></li>
+            <li><a href='/register'>Register</a></li>
+            <li><a href='/login'>Log In</a></li>
+            <li><a href='/logout'>Log Out</a></li>
+        </ul>
+    </nav>
+        
+    <h1>Sign Up for some self-expressing</h1>
+
+    <form action="/register" method="POST">
+        Username:<br>
+        <input type="text" name="username" placeholder="Your fabulous username here"><br>
+        Email:<br>
+        <input type="email" name="email" placeholder="Now your coolest email"><br>
+        Password:<br>
+        <input id="password" type="password" name="password" placeholder="Ssssh! Make it safe and at least 8 characters long."><br>
+        Confirm password:<br>
+        <input id="confirmation" type="password" name="confirmation" placeholder="Let's confirm it."><br>
+        <p id="notmatch"></p>
+        <input id="submit" type="submit" value="Submit">
+      </form>
+
+    <footer>
+        <p>Made by Morfsm!</p>
+    </footer>
+
+    <script type="text/javascript">
+        if (Document.getElementById('password').val() !== Document.getElementById('confirmation').val()){
+            Document.getElementById('notmatch').text('Passwords don\'t match, honey!')
+        }
+
+    </script>
+
+</body>
+
+</html>
