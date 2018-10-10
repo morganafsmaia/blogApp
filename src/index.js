@@ -42,11 +42,12 @@ const session = require('express-session')
 const bodyParser = require('body-parser')
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
+
 // CONFIG dependencies
 //process.env.POSTGRES_USER
 //BLOGAPP
 const index = express()
-const sequelize = new Sequelize(process.env.POSTGRES_DATABASE, process.env.POSTGRES_USER, null, {
+const sequelize = new Sequelize('blogapp', 'postgres', null, {
     host: 'localhost',
     dialect: 'postgres',
     storage: './session.postgres'
@@ -166,11 +167,29 @@ index.get('/oops', (req, res) => {
 });
 
 
-// Register route
+// Register route with validation
 
 index.get('/register', (req, res) => {
     res.status(200).render("register")
 });
+
+//using validation route to validate unique username in front-end AJAX
+index.post('/validation', (req,res) =>{
+    var username = req.body.username
+    User.findOne({
+        where: {
+            username: username
+        }
+    })
+    .then( user =>{
+        if (user === null){
+            res.send(true)
+        }else{
+            res.send(false)
+        }
+    })
+})
+
 
 index.post('/register', (req, res) => {
 
@@ -187,7 +206,7 @@ index.post('/register', (req, res) => {
         })
         .catch((err) => {
             console.log(err, err.stack)
-            res.status(400).render('oops')
+            res.status(400).redirect('/oops')
         })
 })
 
