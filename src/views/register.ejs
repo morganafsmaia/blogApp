@@ -8,10 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="./css/main.css">
     <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 </head>
 
 <body id="register">
-   
+
     <nav>
         <ul>
             <li><a href='/'>Home</a></li>
@@ -23,31 +24,68 @@
             <li><a href='/logout'>Log Out</a></li>
         </ul>
     </nav>
-        
+
     <h1>Sign Up for some self-expressing</h1>
 
     <form action="/register" method="POST">
         Username:<br>
-        <input type="text" name="username" placeholder="Your fabulous username here"><br>
+        <input id="username" type="text" name="username" placeholder="Your fabulous username" required><br>
+        <p id="usernamevalidation"></p>
         Email:<br>
-        <input type="email" name="email" placeholder="Now your coolest email"><br>
+        <input id='email' type="email" name="email" placeholder="Cool email" required title="Please enter a valid email."><br>
+        <p id='testemail'></p>
         Password:<br>
-        <input id="password" type="password" name="password" placeholder="Ssssh! Make it safe and at least 8 characters long."><br>
+        <input id="password" type="password" name="password" placeholder="At least 8 characters long." required><br>
+        <p id='passlength'></p>
         Confirm password:<br>
-        <input id="confirmation" type="password" name="confirmation" placeholder="Let's confirm it."><br>
+        <input id="confirmation" type="password" name="confirmation" placeholder="Let's confirm it." required><br>
         <p id="notmatch"></p>
         <input id="submit" type="submit" value="Submit">
-      </form>
+    </form>
 
     <footer>
         <p>Made by Morfsm!</p>
     </footer>
 
     <script type="text/javascript">
-        if (Document.getElementById('password').val() !== Document.getElementById('confirmation').val()){
-            Document.getElementById('notmatch').text('Passwords don\'t match, honey!')
-        }
+        $(document).ready(() => {
+            $('#password').on('input', (event) => {
+                var password = $('#password').val();
+                if (password.length < 8) {
+                    $('#passlength').text('Please type at least 8 characters!')
+                } else {
+                    $('#passlength').empty();
+                }
+            });
 
+            $('#confirmation').on('input', (event) => {
+                if ($('#password').val() !== $('#confirmation').val()) {
+                    $('#notmatch').text('Passwords don\'t match, honey!')
+                } else {
+                    $('#notmatch').text('Great job dear!')
+                }
+            })
+
+            $('#username').on('input', (event) => {
+                var username = $("#username").val().toLowerCase()
+                if (username.length != 0) {
+                    $.post('/validation', {
+                        username: username
+                    }, (response) => {
+                        if (response) {
+                            $('#usernamevalidation').empty();
+                        } else {
+                            $('#usernamevalidation').text('Please pick another username!');
+                        }
+                    })
+                }else{
+                    $('#usernamevalidation').empty();
+                }
+            })
+
+
+
+        })
     </script>
 
 </body>
