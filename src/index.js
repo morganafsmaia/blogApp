@@ -45,6 +45,7 @@ var bcrypt = require('bcrypt');
 
 
 // CONFIG dependencies
+//process.env.POSTGRES_DB
 //process.env.POSTGRES_USER
 //BLOGAPP
 const index = express()
@@ -175,6 +176,7 @@ index.get('/register', (req, res) => {
 });
 
 //using validation route to validate unique username in front-end AJAX
+
 index.post('/validation', (req, res) => {
     var username = req.body.username
     User.findOne({
@@ -188,6 +190,9 @@ index.post('/validation', (req, res) => {
             } else {
                 res.send(false)
             }
+        }).catch((err) => {
+            console.log(err, err.stack)
+            res.status(400).redirect('/oops')
         })
 })
 
@@ -198,24 +203,29 @@ index.post('/register', (req, res) => {
     var inputemail = req.body.email
     var inputpassword = req.body.password
 
+    var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-    bcrypt.hash(inputpassword, 10, function (err, hash) {
-        if (err) {
-            console.log(err);
-        } else {
-            User.create({
-                    username: inputusername,
-                    email: inputemail,
-                    password: hash,
-                }).then(() => {
-                    res.status(307).redirect('/login');
-                })
-                .catch((err) => {
-                    console.log(err, err.stack)
-                    res.status(400).redirect('/oops')
-                })
-        }
-    });
+    if (inputpassword.length >= 8 && regex.test(inputemail)) {
+        bcrypt.hash(inputpassword, 10, function (err, hash) {
+            if (err) {
+                console.log(err);
+            } else {
+                User.create({
+                        username: inputusername,
+                        email: inputemail,
+                        password: hash,
+                    }).then(() => {
+                        res.status(307).redirect('/login');
+                    })
+                    .catch((err) => {
+                        console.log(err, err.stack)
+                        res.status(400).redirect('/oops')
+                    })
+            }
+        });
+    } else {
+        res.status(400).redirect('/oops')
+    }
 })
 
 //Log In route
