@@ -41,13 +41,14 @@ const express = require('express')
 const session = require('express-session')
 const bodyParser = require('body-parser')
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
+var bcrypt = require('bcrypt');
 
 
 // CONFIG dependencies
 //process.env.POSTGRES_USER
 //BLOGAPP
 const index = express()
-const sequelize = new Sequelize('blogapp', 'postgres', null, {
+const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, null, {
     host: 'localhost',
     dialect: 'postgres',
     storage: './session.postgres'
@@ -174,20 +175,20 @@ index.get('/register', (req, res) => {
 });
 
 //using validation route to validate unique username in front-end AJAX
-index.post('/validation', (req,res) =>{
+index.post('/validation', (req, res) => {
     var username = req.body.username
     User.findOne({
-        where: {
-            username: username
-        }
-    })
-    .then( user =>{
-        if (user === null){
-            res.send(true)
-        }else{
-            res.send(false)
-        }
-    })
+            where: {
+                username: username
+            }
+        })
+        .then(user => {
+            if (user === null) {
+                res.send(true)
+            } else {
+                res.send(false)
+            }
+        })
 })
 
 
@@ -197,17 +198,24 @@ index.post('/register', (req, res) => {
     var inputemail = req.body.email
     var inputpassword = req.body.password
 
-    User.create({
-            username: inputusername,
-            email: inputemail,
-            password: inputpassword
-        }).then(() => {
-            res.status(307).redirect('/login');
-        })
-        .catch((err) => {
-            console.log(err, err.stack)
-            res.status(400).redirect('/oops')
-        })
+
+    bcrypt.hash(inputpassword, 10, function (err, hash) {
+        if (err) {
+            console.log(err);
+        } else {
+            User.create({
+                    username: inputusername,
+                    email: inputemail,
+                    password: hash,
+                }).then(() => {
+                    res.status(307).redirect('/login');
+                })
+                .catch((err) => {
+                    console.log(err, err.stack)
+                    res.status(400).redirect('/oops')
+                })
+        }
+    });
 })
 
 //Log In route
@@ -237,12 +245,17 @@ index.post('/login', (req, res) => {
             email: email
         }
     }).then(function (user) {
-
-        if (user !== null && password === user.password) {
-            req.session.user = user;
-            res.redirect('/post');
-        } else {
-            res.redirect('/oops')
+        if (user !== null) {
+            bcrypt.compare(password, user.password, function (err, result) {
+                if (err) {
+                    console.error(err);
+                    res.redirect('/oops')
+                } else if (result) {
+                    console.log("It's a match!");
+                    req.session.user = user;
+                    res.redirect('/post');
+                }
+            });
         }
     }).catch((err) => {
         console.log(err, err.stack)
