@@ -19,9 +19,9 @@
 // Submit this document in a text file as part of your application.
 
 // Other requirements:
-// Your routes must be "RESTful". See slide 4 of the http requests lecture: Link. Also look at the RESTful routing example in the 
+// Your routes must be "RESTful". See slide 4 of the http requests lecture: Link. Also look at the RESTful routing example in the
 // node sample apps.
-// You must use Sequelize for this assignment. Your connection string must once again be read from the environment variables you 
+// You must use Sequelize for this assignment. Your connection string must once again be read from the environment variables you
 // set up for the Bulletin Board assignment.
 // Commit well - each commit should ideally be a new piece of functionality.
 
@@ -36,456 +36,465 @@
 // Later on, we'll learn about migrations, which will allow us to modify our tables without losing our data.
 
 // Requiring packages
-const Sequelize = require('sequelize')
-const express = require('express')
-const session = require('express-session')
-const bodyParser = require('body-parser')
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
-var bcrypt = require('bcrypt');
-
+const Sequelize = require("sequelize");
+const express = require("express");
+const session = require("express-session");
+const bodyParser = require("body-parser");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+var bcrypt = require("bcrypt");
 
 // CONFIG dependencies
 //process.env.POSTGRES_DB
 //process.env.POSTGRES_USER
 //BLOGAPP
-const index = express()
-const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, null, {
-    host: 'localhost',
-    dialect: 'postgres',
-    storage: './session.postgres'
-})
+const index = express();
+const sequelize = new Sequelize(
+  process.env.POSTGRES_DB,
+  process.env.POSTGRES_USER,
+  null,
+  {
+    host: "localhost",
+    dialect: "postgres",
+    storage: "./session.postgres"
+  }
+);
 
-index.use(express.static('public'))
+index.use(express.static("public"));
 
-index.set('views', 'src/views')
-index.set('view engine', 'ejs')
+index.set("views", "src/views");
+index.set("view engine", "ejs");
 
-index.use(bodyParser.urlencoded({
+index.use(
+  bodyParser.urlencoded({
     extended: true
-}))
+  })
+);
 
-index.use(session({
+index.use(
+  session({
     store: new SequelizeStore({
-        db: sequelize,
-        checkExpirationInterval: 15 * 60 * 1000, // The interval at which to cleanup expired sessions in milliseconds.
-        expiration: 7 * 24 * 60 * 60 * 1000 // The maximum age (in milliseconds) of a valid session.
+      db: sequelize,
+      checkExpirationInterval: 15 * 60 * 1000, // The interval at which to cleanup expired sessions in milliseconds.
+      expiration: 7 * 24 * 60 * 60 * 1000 // The maximum age (in milliseconds) of a valid session.
     }),
     secret: "abacate",
     saveUnitialized: true,
     resave: false
-}))
+  })
+);
 
 //Defining models (tables in the blogapp database)
-const User = sequelize.define('users', {
-    user_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-            len: {
-                args: [2, 150],
-                msg: 'Please enter a username between 2 and 150 characters'
-            }
-        }
-    },
-    email: {
-        type: Sequelize.STRING,
-        unique: true,
-        isEmail: true,
-        allowNull: false
-    },
-    password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        validate: {
-            len: {
-                args: [8, 150],
-                msg: 'Please enter password with at least 8 characters'
-            }
-        }
+const User = sequelize.define("users", {
+  user_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  username: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      len: {
+        args: [2, 150],
+        msg: "Please enter a username between 2 and 150 characters"
+      }
     }
-})
+  },
+  email: {
+    type: Sequelize.STRING,
+    unique: true,
+    isEmail: true,
+    allowNull: false
+  },
+  password: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    validate: {
+      len: {
+        args: [8, 150],
+        msg: "Please enter password with at least 8 characters"
+      }
+    }
+  }
+});
 
-const Post = sequelize.define('posts', {
-    post_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    title: {
-        type: Sequelize.STRING,
-        validate: {
-            len: {
-                args: [2, 150],
-                msg: 'Please enter a title between 2 and 150 characters'
-            }
-        }
-    },
-    body: {
-        type: Sequelize.TEXT,
-        notEmpty: true,
-        allowNull: false
+const Post = sequelize.define("posts", {
+  post_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  title: {
+    type: Sequelize.STRING,
+    validate: {
+      len: {
+        args: [2, 150],
+        msg: "Please enter a title between 2 and 150 characters"
+      }
     }
-})
+  },
+  body: {
+    type: Sequelize.TEXT,
+    notEmpty: true,
+    allowNull: false
+  }
+});
 
-const Comment = sequelize.define('comments', {
-    comment_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    comment: {
-        type: Sequelize.TEXT,
-        notEmpty: true,
-        allowNull: false
-    }
-})
+const Comment = sequelize.define("comments", {
+  comment_id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  comment: {
+    type: Sequelize.TEXT,
+    notEmpty: true,
+    allowNull: false
+  }
+});
 
 // TABLES RELATIONSHIP/ASSOCIATION
-User.hasMany(Post)
-Post.belongsTo(User)
+User.hasMany(Post);
+Post.belongsTo(User);
 
-User.hasMany(Comment)
-Comment.belongsTo(User)
+User.hasMany(Comment);
+Comment.belongsTo(User);
 
-Post.hasMany(Comment)
-Comment.belongsTo(Post)
+Post.hasMany(Comment);
+Comment.belongsTo(Post);
 
 // Routes
 
 // Home route
-index.get('/', (req, res) => {
-    res.status(200).render("home")
+index.get("/", (req, res) => {
+  res.status(200).render("home");
 });
 
 //Oops route
-index.get('/oops', (req, res) => {
-    res.render("oops")
+index.get("/oops", (req, res) => {
+  res.render("oops");
 });
-
 
 // Register route with validation
 
-index.get('/register', (req, res) => {
-    res.status(200).render("register")
+index.get("/register", (req, res) => {
+  res.status(200).render("register");
 });
 
 //using validation route to validate unique username in front-end AJAX
 
-index.post('/validation', (req, res) => {
-    var username = req.body.username
-    User.findOne({
-            where: {
-                username: username
-            }
-        })
-        .then(user => {
-            if (user === null) {
-                res.send(true)
-            } else {
-                res.send(false)
-            }
-        }).catch((err) => {
-            console.log(err, err.stack)
-            res.status(400).redirect('/oops')
-        })
-})
-
-
-index.post('/register', (req, res) => {
-
-    var inputusername = req.body.username
-    var inputemail = req.body.email
-    var inputpassword = req.body.password
-
-    var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-    if (inputpassword.length >= 8 && regex.test(inputemail)) {
-        bcrypt.hash(inputpassword, 10, function (err, hash) {
-            if (err) {
-                console.log(err);
-            } else {
-                User.create({
-                        username: inputusername,
-                        email: inputemail,
-                        password: hash,
-                    }).then(() => {
-                        res.status(307).redirect('/login');
-                    })
-                    .catch((err) => {
-                        console.log(err, err.stack)
-                        res.status(400).redirect('/oops')
-                    })
-            }
-        });
-    } else {
-        res.status(400).redirect('/oops')
+index.post("/validation", (req, res) => {
+  var username = req.body.username;
+  User.findOne({
+    where: {
+      username: username
     }
-})
-
-//Log In route
-index.get('/login', (req, res) => {
-    res.status(200).render("login")
+  })
+    .then(user => {
+      if (user === null) {
+        res.send(true);
+      } else {
+        res.send(false);
+      }
+    })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.status(400).redirect("/oops");
+    });
 });
 
-index.post('/login', (req, res) => {
+index.post("/register", (req, res) => {
+  var inputusername = req.body.username;
+  var inputemail = req.body.email;
+  var inputpassword = req.body.password;
 
-    var email = req.body.email;
-    var password = req.body.password;
+  var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-    //console.log(email, password);
+  if (inputpassword.length >= 8 && regex.test(inputemail)) {
+    bcrypt.hash(inputpassword, 10, function(err, hash) {
+      if (err) {
+        console.log(err);
+      } else {
+        User.create({
+          username: inputusername,
+          email: inputemail,
+          password: hash
+        })
+          .then(() => {
+            res.status(307).redirect("/login");
+          })
+          .catch(err => {
+            console.log(err, err.stack);
+            res.status(400).redirect("/oops");
+          });
+      }
+    });
+  } else {
+    res.status(400).redirect("/oops");
+  }
+});
 
-    if (email.length === 0) {
-        res.redirect('/oops')
-        return;
+//Log In route
+index.get("/login", (req, res) => {
+  res.status(200).render("login");
+});
+
+index.post("/login", (req, res) => {
+  var email = req.body.email;
+  var password = req.body.password;
+
+  //console.log(email, password);
+
+  if (email.length === 0) {
+    res.redirect("/oops");
+    return;
+  }
+
+  if (password.length === 0) {
+    res.redirect("/oops");
+    return;
+  }
+
+  User.findOne({
+    where: {
+      email: email
     }
-
-    if (password.length === 0) {
-        res.redirect('/oops');
-        return;
-    }
-
-    User.findOne({
-        where: {
-            email: email
-        }
-    }).then(function (user) {
-        if (user !== null) {
-            bcrypt.compare(password, user.password, function (err, result) {
-                if (err) {
-                    console.error(err);
-                    res.redirect('/oops')
-                } else if (result) {
-                    console.log("It's a match!");
-                    req.session.user = user;
-                    res.redirect('/post');
-                }
-            });
-        }
-    }).catch((err) => {
-        console.log(err, err.stack)
-        res.redirect('/oops')
+  })
+    .then(function(user) {
+      if (user !== null) {
+        bcrypt.compare(password, user.password, function(err, result) {
+          if (err) {
+            console.error(err);
+            res.redirect("/oops");
+          } else if (result) {
+            console.log("It's a match!");
+            req.session.user = user;
+            res.redirect("/post");
+          }
+        });
+      }
     })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.redirect("/oops");
+    });
 });
 
 // Log Out route
 
-index.get('/logout', (req, res) => {
-    req.session.destroy(function (error) {
-        if (error) {
-            throw error;
-        }
-        res.render('logout');
-    })
-})
+index.get("/logout", (req, res) => {
+  req.session.destroy(function(error) {
+    if (error) {
+      throw error;
+    }
+    res.render("logout");
+  });
+});
 
 // See all posts route ==> /post
 
-index.get('/post', (req, res) => {
-    const user = req.session.user;
+index.get("/post", (req, res) => {
+  const user = req.session.user;
 
-    if (user === undefined) {
-        res.redirect('/oops')
-        return;
-    };
-    //see about ordering the posts from newer to older
-    Post.findAll({
-            order: [
-                ['createdAt', 'DESC']
-            ],
-            include: [{
-                model: User
-            }],
-        })
-        .then((posts) => {
-            //console.log(posts)
-            res.render('allposts', {
-                posts: posts,
-                user: user
-            })
-        }).catch((err) => {
-            console.log(err, err.stack)
-            res.redirect('/oops')
-        })
-})
-
+  if (user === undefined) {
+    res.redirect("/oops");
+    return;
+  }
+  //see about ordering the posts from newer to older
+  Post.findAll({
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: User
+      }
+    ]
+  })
+    .then(posts => {
+      //console.log(posts)
+      res.render("allposts", {
+        posts: posts,
+        user: user
+      });
+    })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.redirect("/oops");
+    });
+});
 
 // Add post route == /post/new
 
-index.get('/post/new', (req, res) => {
-    const user = req.session.user;
+index.get("/post/new", (req, res) => {
+  const user = req.session.user;
 
-    if (user === undefined) {
-        res.redirect('/oops')
-        return;
-    } else {
-        res.render("addpost");
-    }
+  if (user === undefined) {
+    res.redirect("/oops");
+    return;
+  } else {
+    res.render("addpost");
+  }
 });
 
-index.post('/post/new', (req, res) => {
+index.post("/post/new", (req, res) => {
+  const user = req.session.user;
+  //console.log(req.session)
+  if (user === undefined) {
+    res.redirect("/oops");
+    return;
+  }
 
-    const user = req.session.user;
-    //console.log(req.session)
-    if (user === undefined) {
-        res.redirect('/oops')
-        return;
+  var username = req.session.user.username;
+  var inputTitle = req.body.title;
+  var inputBody = req.body.body;
+
+  User.findOne({
+    where: {
+      username: username
     }
-
-    var username = req.session.user.username;
-    var inputTitle = req.body.title;
-    var inputBody = req.body.body;
-
-    User.findOne({
-            where: {
-                username: username
-            }
-        })
-        .then(function (user) {
-            return user.createPost({
-                title: inputTitle,
-                body: inputBody
-            })
-        })
-        .then(post => {
-            //console.log(post)
-            res.redirect(`/post/${post.post_id}`);
-        }).catch((err) => {
-            console.log(err, err.stack)
-            res.redirect('/oops')
-        })
+  })
+    .then(function(user) {
+      return user.createPost({
+        title: inputTitle,
+        body: inputBody
+      });
+    })
+    .then(post => {
+      //console.log(post)
+      res.redirect(`/post/${post.post_id}`);
+    })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.redirect("/oops");
+    });
 });
 
-// User's post route ==> /post/user/my 
+// User's post route ==> /post/user/my
 
-index.get('/post/my', (req, res) => {
-    const user = req.session.user
-    if (user === undefined) {
-        res.redirect('/oops')
-        return;
-    }
+index.get("/post/my", (req, res) => {
+  const user = req.session.user;
+  if (user === undefined) {
+    res.redirect("/oops");
+    return;
+  }
 
-    const userid = user.user_id
+  const userid = user.user_id;
 
-    Post.findAll({
-            order: [
-                ['createdAt', 'DESC']
-            ],
-            where: {
-                userUserId: userid
-            },
-            include: [{
-                model: User
-            }],
-        })
-        .then((posts) => {
-            //console.log(posts)
-            res.render('userpost', {
-                posts: posts,
-                user: user
-            })
-        }).catch((err) => {
-            console.log(err, err.stack)
-            res.redirect('/oops')
-        })
-})
+  Post.findAll({
+    order: [["createdAt", "DESC"]],
+    where: {
+      userUserId: userid
+    },
+    include: [
+      {
+        model: User
+      }
+    ]
+  })
+    .then(posts => {
+      //console.log(posts)
+      res.render("userpost", {
+        posts: posts,
+        user: user
+      });
+    })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.redirect("/oops");
+    });
+});
 
 // See an specific post ==> /post/:post_id ==> NEEDS DEBUGGING
-index.get('/post/:post_id', (req, res) => {
+index.get("/post/:post_id", (req, res) => {
+  const post_id = req.params.post_id;
+  //console.log(post_id)
+  // var posts;
+  // var comments;
 
-    const post_id = req.params.post_id;
-    //console.log(post_id)
-    // var posts;
-    // var comments;
+  var p1 = Post.findOne({
+    where: {
+      post_id: post_id
+    },
+    include: [
+      {
+        model: User
+      },
+      {
+        model: Comment
+      }
+    ]
+  });
+  // .then((post) => {
+  //     posts = post
+  // });
 
+  var p2 = Comment.findAll({
+    order: [["createdAt", "DESC"]],
+    where: {
+      postPostId: post_id
+    },
+    include: [
+      {
+        model: User
+      }
+    ]
+  });
+  // .then((comment) => {
+  //     comments = comment
+  // });
+  Promise.all([p1, p2])
+    .then(all => {
+      var posts, comments;
+      [posts, comments] = all;
 
-    var p1 = Post.findOne({
-        where: {
-            post_id: post_id
-        },
-        include: [{
-            model: User
-        }, {
-            model: Comment
-        }]
+      // console.log('all ________________', all)
+      // console.log('comments ________________', comments)
+      // console.log('posts ________________', posts)
+      res.render("specificpost", {
+        comments: comments,
+        posts: posts
+      });
     })
-    // .then((post) => {
-    //     posts = post
-    // });
-
-    var p2 = Comment.findAll({
-        order: [
-            ['createdAt', 'DESC']
-        ],
-        where: {
-            postPostId: post_id
-        },
-        include: [{
-            model: User
-        }]
-    })
-    // .then((comment) => {
-    //     comments = comment
-    // });
-    Promise.all([p1, p2])
-        .then(all => {
-            var posts, comments;
-            [posts, comments] = all;
-
-            // console.log('all ________________', all)
-            // console.log('comments ________________', comments)
-            // console.log('posts ________________', posts)
-            res.render("specificpost", {
-                comments: comments,
-                posts: posts
-            });
-        })
-        .catch((err) => {
-            console.log(err, err.stack)
-            res.redirect('/oops')
-        })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.redirect("/oops");
+    });
 });
 
-index.post('/post/:post_id', (req, res) => {
-    var userid = req.session.user.user_id;
-    var inputComment = req.body.comment;
-    console.log('----------------------------------', inputComment)
-    const post_id = req.params.post_id;
-    console.log(post_id)
+index.post("/post/:post_id", (req, res) => {
+  var userid = req.session.user.user_id;
+  var inputComment = req.body.comment;
+  console.log("----------------------------------", inputComment);
+  const post_id = req.params.post_id;
+  console.log(post_id);
 
-    Post.findOne({
-            where: {
-                post_id: post_id
-            }
-        })
-        .then((post) => {
-            return post.createComment({
-                comment: inputComment,
-                userUserId: userid
-            })
-        })
-        .then(function (comments) {
-            console.log(comments)
-            res.redirect(`/post/${post_id}`)
-        }).catch((err) => {
-            console.log(err, err.stack)
-            res.redirect('/oops')
-        })
-
-})
-
+  Post.findOne({
+    where: {
+      post_id: post_id
+    }
+  })
+    .then(post => {
+      return post.createComment({
+        comment: inputComment,
+        userUserId: userid
+      });
+    })
+    .then(function(comments) {
+      console.log(comments);
+      res.redirect(`/post/${post_id}`);
+    })
+    .catch(err => {
+      console.log(err, err.stack);
+      res.redirect("/oops");
+    });
+});
 
 // Creating tables in the database
 
-sequelize.sync()
+sequelize.sync();
 
 // Setting up Express server
 
-index.listen(3333, function () {
-    console.log("Here on port 3333")
-})
+index.listen(3333, function() {
+  console.log("Here on port 3333");
+});
